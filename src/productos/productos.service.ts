@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Producto } from './entities/producto.entity';
@@ -10,7 +10,7 @@ export class ProductosService {
   constructor(
     @InjectRepository(Producto)
     private readonly productoRepository: Repository<Producto>,
-  ) {}
+  ) { }
 
   create(createProductoDto: CreateProductoDto) {
     const producto = this.productoRepository.create(createProductoDto);
@@ -29,9 +29,23 @@ export class ProductosService {
     return producto;
   }
 
-  async update(id: number, updateProductoDto: UpdateProductoDto) {
+  async patch(id: number, updateProductoDto: UpdateProductoDto) {
     const producto = await this.findOne(id);
     Object.assign(producto, updateProductoDto);
+    return this.productoRepository.save(producto);
+  }
+
+  async put(id: number, updateProductoDto: UpdateProductoDto) {
+    const { nombre, precio } = updateProductoDto;
+
+    if (nombre === undefined || precio === undefined) {
+      throw new BadRequestException('Debes enviar todos los campos obligatorios: nombre y precio');
+    }
+
+    const producto = await this.findOne(id);
+    producto.nombre = nombre;
+    producto.precio = precio;
+
     return this.productoRepository.save(producto);
   }
 

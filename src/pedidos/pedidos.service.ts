@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Pedido } from './entities/pedido.entity';
@@ -44,7 +44,8 @@ export class PedidosService {
     return pedido;
   }
 
-  async update(id: number, updatePedidoDto: UpdatePedidoDto): Promise<Pedido> {
+  // 🆕 Método PATCH - actualización parcial
+  async patch(id: number, updatePedidoDto: UpdatePedidoDto): Promise<Pedido> {
     const pedido = await this.findOne(id);
 
     if (updatePedidoDto.productosIds) {
@@ -55,7 +56,30 @@ export class PedidosService {
       pedido.productos = productos;
     }
 
-    pedido.clienteNombre = updatePedidoDto.clienteNombre ?? pedido.clienteNombre;
+    if (updatePedidoDto.clienteNombre !== undefined) {
+      pedido.clienteNombre = updatePedidoDto.clienteNombre;
+    }
+
+    return this.pedidoRepository.save(pedido);
+  }
+
+  // 🆕 Método PUT - actualización total
+  async put(id: number, updatePedidoDto: UpdatePedidoDto): Promise<Pedido> {
+    const { clienteNombre, productosIds } = updatePedidoDto;
+
+    if (clienteNombre === undefined || !Array.isArray(productosIds) || productosIds.length === 0) {
+      throw new BadRequestException('Debes enviar clienteNombre y una lista válida de productosIds');
+    }
+
+    const pedido = await this.findOne(id);
+
+    const productos = await this.productoRepository.findByIds(productosIds);
+    if (productos.length !== productosIds.length) {
+      throw new NotFoundException('Algunos productos no fueron encontrados para actualizar');
+    }
+
+    pedido.clienteNombre = clienteNombre;
+    pedido.productos = productos;
 
     return this.pedidoRepository.save(pedido);
   }
