@@ -15,7 +15,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     username: 'postgres',
     password: '12345',
     database: 'Examen2_4toB_GP',
-    entities: [Pedido,Producto], // Asegúrate de incluir tus entidades aquí
+    entities: [Pedido,Producto], 
     retryDelay: 3000,
     autoLoadEntities: true,
     synchronize: true,

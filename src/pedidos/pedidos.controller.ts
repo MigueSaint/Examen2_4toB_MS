@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, ParseIntPipe, Patch } from '@nestjs/common';
 import { PedidosService } from './pedidos.service';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
 import { UpdatePedidoDto } from './dto/update-pedido.dto';
@@ -24,6 +24,11 @@ export class PedidosController {
 
   @Put(':id')
   update(@Param('id', ParseIntPipe) id: number, @Body() updatePedidoDto: UpdatePedidoDto) {
+    return this.pedidosService.update(id, updatePedidoDto);
+  }
+
+  @Patch(':id')
+  patch(@Param('id', ParseIntPipe) id: number, @Body() updatePedidoDto: UpdatePedidoDto) {
     return this.pedidosService.update(id, updatePedidoDto);
   }
 
